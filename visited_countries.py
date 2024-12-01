@@ -1,63 +1,64 @@
 import pandas as pd
-import geopandas as gpd
-import folium, webbrowser, warnings, os
+import folium, webbrowser, warnings, json, ast
+from utils import load_config, setting_default_environment
 warnings.filterwarnings("ignore")
 
-def setting_environment(
-    path : str = "C:/Users/ale_c/OneDrive/Desktop/GitHub/visited_places/"
-    ) -> None:
-    os.chdir(path)
+config = load_config("config.json")
 
-def ingesting_input_data(
-    personal_data_path : str = "visited_countries.xlsx"
+world_data_name=config["world_data_name"]
+personal_data_name=config["personal_data_name"]
+map_name=config["map_name"]
+
+def ingesting_data(
+        world_data_name: str,
+        personal_data_name: str
     ) -> pd.DataFrame:
     
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    data = pd.read_excel(personal_data_path)
+    world_data = pd.read_excel(f'{world_data_name}.xlsx')
+    personal_data = pd.read_excel(f'{personal_data_name}.xlsx')
 
     df = (
-        world
+        world_data
         .merge(
-            data,
-            left_on='name',
-            right_on='country',
-            how='left',
-            suffixes=('','_y')
+            personal_data,
+            on='COUNTRY',
+            how='inner'
         )  
-        .dropna()
-        .drop(['continent_y', 'country'], axis=1)
+        .drop(
+            'CONTINENT',
+            axis=1
+        )
     )
     
     return df
     
 def map_creation(
-    df : pd.DataFrame,
-    path : str = "C:/Users/ale_c/OneDrive/Desktop/GitHub/visited_places/"
+        df : pd.DataFrame,
+        map_name: str
     ) -> None:
 
-    m = folium.Map(location=[20, 0], zoom_start=2) # creating map
-    for idx, row in df[df['visited'] == 1].iterrows(): # populating map
+    m = folium.Map(location=[20, 0], zoom_start=2)  # creating map
+    for idx, row in df[df['VISITED'] == 1].iterrows():  # populating map
+        geometry = ast.literal_eval(row['GEOMETRY'])
         folium.GeoJson(
-            row['geometry'],
+            geometry,
             style_function=lambda x: {
                 'fillColor': 'blue',
                 'color': 'black',
                 'weight': 0.5,
                 'fillOpacity': 0.7
             },
-            tooltip=f"{row['name']}"
+            tooltip=f"{row['COUNTRY']}"
         ).add_to(m)
-    map_path = os.path.join(path, 'visited_countries_map.html') # saving map
-    m.save(map_path)
+    m.save(f'{map_name}.html') # saving map
+    webbrowser.open(f'{map_name}.html') # opening map
     
-    return map_path
-
-def printing_map(
-    map_path : str
-    ) -> None:
-    
-    webbrowser.open('file://' + os.path.realpath(map_path)) # opening map
-
 if __name__ == "__main__":
-    setting_environment()  # Set environment
-    printing_map(map_creation(ingesting_input_data()))  # Print the map
+    setting_default_environment()  # Set environment
+    map_creation(
+        ingesting_data(
+            world_data_name,
+            personal_data_name
+        ),
+        map_name
+    )  # Print the map
