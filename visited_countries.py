@@ -37,7 +37,12 @@ def map_creation(
         map_name: str
     ) -> None:
 
-    m = folium.Map(location=[20, 0], zoom_start=2)  # creating map
+    m = folium.Map(
+        location=[0, 0], 
+        zoom_start=2,
+        tiles="CartoDB positron",
+        attr="CartoDB"
+    )  # creating map
     for idx, row in df[df['VISITED'] == 1].iterrows():  # populating map
         geometry = ast.literal_eval(row['GEOMETRY'])
         folium.GeoJson(
@@ -52,7 +57,7 @@ def map_creation(
         ).add_to(m)
     m.save(f'{map_name}.html') # saving map
     webbrowser.open(f'{map_name}.html') # opening map
-    
+
 if __name__ == "__main__":
     setting_default_environment()  # Set environment
     map_creation(
