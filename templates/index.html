@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            background-image: url('/static/bg1.png');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        body.bg-overlay::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(249, 250, 251, 0.85);
+            /* Light mode alpha */
+            z-index: -1;
+            transition: background 0.3s;
+        }
+
+        body.dark.bg-overlay::before {
+            background: rgba(17, 24, 39, 0.95);
+            /* Dark mode alpha */
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+
+        /* Dark Mode */
+        body.dark {
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+
+        body.dark .bg-white {
+            background-color: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark .bg-gray-50 {
+            background-color: #111827;
+        }
+
+        body.dark .bg-gray-100 {
+            background-color: #374151;
+        }
+
+        body.dark .border-gray-200 {
+            border-color: #374151;
+        }
+
+        body.dark input,
+        body.dark select {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 bg-overlay">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header
+            class="bg-white/70 backdrop-blur-md sticky top-0 z-50 shadow-sm py-4 border-b border-white/20 transition-all">
+            <div class="container mx-auto px-6 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <span class="text-3xl">🌎</span>
+                    <div>
+                        <h2 id="card-title" class="text-xl font-bold text-gray-800">World Map</h2>
+                        <p id="card-desc" class="text-gray-500 text-xs">Visualize selected countries across the globe.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <select id="lang-select" onchange="changeLanguage(this.value)"
+                        class="bg-gray-50 border border-gray-200 text-sm rounded-lg p-2 outline-none">
+                        <option value="en">English 🇺🇸</option>
+                        <option value="es">Español 🇪🇸</option>
+                        <option value="fr">Français 🇫🇷</option>
+                        <option value="de">Deutsch 🇩🇪</option>
+                    </select>
+                    <button onclick="toggleTheme()"
+                        class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors" title="Toggle Dark Mode">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="flex-grow container mx-auto px-6 py-10 max-w-5xl">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+                <div class="h-1.5 bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-500"></div>
+
+                <div class="p-8">
+                    <form action="/view_map" method="post" target="_blank">
+                        <div class="space-y-6">
+                            <!-- Controls -->
+                            <!-- Actions Toolbar -->
+                            <div class="space-y-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Data Actions -->
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center block">Data
+                                            Management</label>
+                                        <div class="flex gap-2">
+                                            <button type="button" onclick="downloadTemplate()"
+                                                class="flex-1 flex items-center justify-center gap-2 py-2 bg-white border border-green-200 text-green-700 hover:bg-green-50 rounded-xl transition-all shadow-sm text-xs font-semibold"
+                                                id="btn-download" title="Download Excel template with all countries">
+                                                📥 Download Template
+                                            </button>
+                                            <input type="file" id="excel-upload" class="hidden"
+                                                onchange="handleFileUpload(this)">
+                                            <button type="button"
+                                                onclick="document.getElementById('excel-upload').click()"
+                                                class="flex-1 flex items-center justify-center gap-2 py-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl transition-all shadow-sm text-xs font-semibold"
+                                                id="btn-load" title="Upload your visited countries Excel file">
+                                                📄 Load Excel
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- View/Selection Actions -->
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center block">Selection
+                                            & View</label>
+                                        <div class="flex gap-2">
+                                            <button type="button" onclick="toggleFullscreen()"
+                                                class="flex-1 flex items-center justify-center gap-2 py-2 bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 rounded-xl transition-all shadow-sm text-xs font-semibold"
+                                                id="btn-fullscreen" title="Show application in full-screen mode">
+                                                ⛶ Fullscreen
+                                            </button>
+                                            <button type="button" onclick="clearSelection()"
+                                                class="flex-1 flex items-center justify-center gap-2 py-2 bg-white border border-red-200 text-red-700 hover:bg-red-50 rounded-xl transition-all shadow-sm text-xs font-semibold"
+                                                id="btn-clear" title="Remove all selected countries">
+                                                ✗ Clear Selection
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Search & Selected Chips -->
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <input type="text" id="search" oninput="filterCountries()" placeholder="Search..."
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-2xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all shadow-sm">
+                                    <span class="absolute left-4 top-3.5">🔍</span>
+                                </div>
+                                <div id="active-chips"
+                                    class="flex flex-wrap gap-2 min-h-[50px] p-3 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                    <span class="text-xs text-gray-400 w-full text-center py-2" id="no-selection">No
+                                        selection</span>
+                                </div>
+                            </div>
+
+                            <!-- Accordion -->
+                            <div id="accordion" class="max-h-[32rem] overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                                <!-- Dynamic Content -->
+                            </div>
+
+                            <!-- Map Settings -->
+                            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase mb-2 block"
+                                        id="label-style">Style</label>
+                                    <select name="map_style"
+                                        class="w-full text-sm border-gray-200 rounded-lg p-2 bg-gray-50 outline-none">
+                                        <option value="CartoDB positron">Light</option>
+                                        <option value="OpenStreetMap">Standard</option>
+                                        <option value="CartoDB dark_matter">Dark</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase mb-2 block"
+                                        id="label-color">Color</label>
+                                    <input type="color" name="visited_color" value="#3498db"
+                                        class="w-full h-9 rounded border border-gray-200 cursor-pointer">
+                                </div>
+                            </div>
+
+                            <select name="selected_countries" id="country-select" multiple class="hidden"></select>
+
+                            <button type="submit"
+                                class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition-all"
+                                id="btn-launch" title="Generate and open the interactive map">
+                                🚀 Launch Map
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const translations = {
+            en: { title: "Mapped World", desc: "Visualize selected countries across the globe.", select: "Countries", download: "📥 Download Template", load: "📄 Load Excel", fullscreen: "⛶ Fullscreen", clear: "✗ Clear Selection", search: "Search...", noSelection: "No selection", launch: "🚀 Launch Map", style: "Style", color: "Color", selectAll: "ALL", deselectAll: "NONE" },
+            es: { title: "Mapeador Global", desc: "Visualizá los países seleccionados.", select: "Países", download: "📥 Descargar Plantilla", load: "📄 Cargar Excel", fullscreen: "⛶ Pantalla Completa", clear: "✗ Limpiar Selección", search: "Buscar...", noSelection: "Sin selección", launch: "🚀 Lanzar Mapa", style: "Estilo", color: "Color", selectAll: "TODO", deselectAll: "NADA" },
+            fr: { title: "Mappeur Global", desc: "Visualisez les pays sélectionnés.", select: "Pays", download: "📥 Télécharger Modèle", load: "📄 Charger Excel", fullscreen: "⛶ Plein écran", clear: "✗ Effacer Sélection", search: "Chercher...", noSelection: "Aucune selección", launch: "🚀 Lancer Carte", style: "Style", color: "Couleur", selectAll: "TOUT", deselectAll: "RIEN" },
+            de: { title: "Welt-Mapper", desc: "Visualisieren Sie ausgewählte Länder.", select: "Länder", download: "📥 Vorlage herunterladen", load: "📄 Excel laden", fullscreen: "⛶ Vollbild", clear: "✗ Auswahl löschen", search: "Suchen...", noSelection: "Keine Auswahl", launch: "🚀 Karte starten", style: "Stil", color: "Farbe", selectAll: "ALLE", deselectAll: "KEINE" }
+        };
+
+        let currentLang = 'en';
+        let countriesData = {};
+
+        // --- Core Functions ---
+
+        async function init() {
+            const resp = await fetch('/api/countries');
+            countriesData = await resp.json();
+            render();
+            if (localStorage.getItem('theme') === 'dark') toggleTheme(true);
+        }
+
+        function render() {
+            const container = document.getElementById('accordion');
+            const select = document.getElementById('country-select');
+            let html = '';
+            let options = '';
+
+            for (const [continent, regions] of Object.entries(countriesData)) {
+                const id = continent.toLowerCase().replace(/\s/g, '-');
+                html += `
+                    <div class="continent-container border border-gray-200 rounded-xl overflow-hidden">
+                        <button type="button" onclick="toggleAcc('${id}')" class="w-full text-left p-3 bg-gray-50 font-bold text-sm flex justify-between">
+                            ${continent} <span id="icon-${id}" class="transition-transform duration-200">▼</span>
+                        </button>
+                        <div id="content-${id}" class="continent-content hidden p-2 space-y-2 bg-white">
+                `;
+                for (const [region, countries] of Object.entries(regions)) {
+                    html += `
+                        <div class="region-container p-2 border border-gray-50 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">${region}</span>
+                                <button type="button" onclick="toggleRegion('${continent}','${region}')" class="text-[9px] font-black text-indigo-400 hover:text-indigo-600">TOGGLE</button>
+                            </div>
+                            <div class="flex flex-wrap gap-1">
+                                ${countries.map(c => {
+                        options += `<option value="${c.name}">${c.name}</option>`;
+                        return `<button type="button" id="chip-${c.name}" onclick="toggleCountry('${c.name}')" 
+                                        class="px-2 py-0.5 border border-gray-200 rounded-full text-[10px] bg-white transition-all">${c.name}</button>`;
+                    }).join('')}
+                            </div>
+                        </div>`;
+                }
+                html += `</div></div>`;
+            }
+            container.innerHTML = html;
+            select.innerHTML = options;
+        }
+
+        function toggleCountry(name) {
+            const select = document.getElementById('country-select');
+            const chip = document.getElementById(`chip-${name}`);
+            const opt = Array.from(select.options).find(o => o.value === name);
+            if (!opt) return;
+
+            opt.selected = !opt.selected;
+            chip.classList.toggle('bg-indigo-500', opt.selected);
+            chip.classList.toggle('text-white', opt.selected);
+            chip.classList.toggle('border-indigo-600', opt.selected);
+            updateChips();
+        }
+
+        function toggleRegion(cont, reg) {
+            const countries = countriesData[cont][reg];
+            const allSelected = countries.every(c => {
+                const opt = Array.from(document.getElementById('country-select').options).find(o => o.value === c.name);
+                return opt && opt.selected;
+            });
+            countries.forEach(c => {
+                const opt = Array.from(document.getElementById('country-select').options).find(o => o.value === c.name);
+                if (opt) opt.selected = !allSelected;
+                const chip = document.getElementById(`chip-${c.name}`);
+                if (chip) {
+                    chip.classList.toggle('bg-indigo-500', opt.selected);
+                    chip.classList.toggle('text-white', opt.selected);
+                    chip.classList.toggle('border-indigo-600', opt.selected);
+                }
+            });
+            updateChips();
+        }
+
+        function updateChips() {
+            const area = document.getElementById('active-chips');
+            const selected = Array.from(document.getElementById('country-select').selectedOptions);
+            const query = document.getElementById('search').value.toLowerCase();
+
+            if (selected.length === 0) {
+                area.innerHTML = `<span class="text-xs text-gray-400 w-full text-center py-2">${translations[currentLang].noSelection}</span>`;
+            } else {
+                area.innerHTML = selected.map(o => `
+                    <div class="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[11px] font-bold border border-indigo-100 shadow-sm transition-all">
+                        ${o.value} <button type="button" onclick="toggleCountry('${o.value}')" class="hover:text-red-500 ml-1 text-sm">×</button>
+                    </div>
+                `).join('');
+
+                // Re-apply filter if searching
+                if (query) filterCountries();
+            }
+        }
+
+        function filterCountries() {
+            const query = document.getElementById('search').value.toLowerCase();
+
+            // 1. Filter selected countries (active-chips)
+            document.querySelectorAll('#active-chips > div').forEach(chip => {
+                const name = chip.innerText.replace('×', '').trim().toLowerCase();
+                chip.classList.toggle('hidden', query !== '' && !name.includes(query));
+            });
+
+            // 2. Filter available countries (accordion)
+            document.querySelectorAll('.continent-container').forEach(cont => {
+                let contHasMatch = false;
+
+                cont.querySelectorAll('.region-container').forEach(reg => {
+                    let regHasMatch = false;
+
+                    reg.querySelectorAll('button[id^="chip-"]').forEach(btn => {
+                        const match = btn.innerText.toLowerCase().includes(query);
+                        btn.classList.toggle('hidden', query !== '' && !match);
+                        if (match) { regHasMatch = true; contHasMatch = true; }
+                    });
+
+                    // Hide/Show Region
+                    reg.classList.toggle('hidden', query !== '' && !regHasMatch);
+                });
+
+                // Hide/Show Continent
+                cont.classList.toggle('hidden', query !== '' && !contHasMatch);
+
+                // Auto-expand Continent content if query active
+                const content = cont.querySelector('.continent-content');
+                const icon = cont.querySelector('span[id^="icon-"]');
+                if (query !== '') {
+                    if (contHasMatch) {
+                        content.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                    }
+                } else {
+                    // Restore collapsed state (unless we want to keep some open? 
+                    // Usually safer to collapse if they were hidden or just leave as is.
+                    // User said "vayan desapareciendo", implying they should reappear when cleared.
+                    content.classList.add('hidden');
+                    icon.classList.remove('rotate-180');
+                }
+            });
+        }
+
+        function clearSelection() {
+            Array.from(document.getElementById('country-select').options).forEach(o => o.selected = false);
+            document.querySelectorAll('button[id^="chip-"]').forEach(c => {
+                c.classList.remove('bg-indigo-500', 'text-white', 'border-indigo-600');
+            });
+            updateChips();
+        }
+
+        async function downloadTemplate() {
+            window.location.href = '/api/download_template';
+        }
+
+        function changeBackground(url) {
+            document.body.style.backgroundImage = `url('${url}')`;
+        }
+
+        function toggleFullscreen() {
+            const el = document.documentElement;
+            if (!document.fullscreenElement) {
+                el.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Listen for fullscreen changes to adjust UI
+        document.addEventListener('fullscreenchange', () => {
+            const accordion = document.getElementById('accordion');
+            if (document.fullscreenElement) {
+                accordion.style.maxHeight = '70vh';
+            } else {
+                accordion.style.maxHeight = '16rem'; // back to max-h-64
+            }
+        });
+
+        async function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const fd = new FormData();
+            fd.append('file', file);
+            try {
+                const resp = await fetch('/api/upload', { method: 'POST', body: fd });
+                const visited = await resp.json();
+                if (resp.ok) {
+                    clearSelection();
+                    visited.forEach(name => toggleCountry(name));
+                } else alert(visited.error);
+            } catch (e) { alert("Upload failed"); }
+            input.value = "";
+        }
+
+        function toggleAcc(id) {
+            document.getElementById(`content-${id}`).classList.toggle('hidden');
+            document.getElementById(`icon-${id}`).classList.toggle('rotate-180');
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang] || translations.en;
+            document.title = t.title;
+            document.getElementById('card-title').innerText = t.title;
+            document.getElementById('card-desc').innerText = t.desc;
+            document.getElementById('label-select').innerText = t.select;
+            document.getElementById('btn-download').innerText = t.download;
+            document.getElementById('btn-load').innerText = t.load;
+            document.getElementById('btn-fullscreen').innerText = t.fullscreen;
+            document.getElementById('btn-clear').innerText = t.clear;
+            document.getElementById('search').placeholder = t.search;
+            document.getElementById('btn-launch').innerText = t.launch;
+            document.getElementById('label-style').innerText = t.style;
+            document.getElementById('label-color').innerText = t.color;
+            updateChips();
+        }
+
+        function toggleTheme(initial) {
+            const isDark = document.body.classList.toggle('dark');
+            document.getElementById('theme-icon').innerText = isDark ? '☀️' : '🌙';
+            if (!initial) localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

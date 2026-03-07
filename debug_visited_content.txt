@@ -1,0 +1,7 @@
+Rows: 203
+  CONTINENT      COUNTRY  VISITED
+0      Asia  Afghanistan        0
+1    Europa      Albania        1
+2    Africa      Algeria        0
+3    Europa      Andorra        0
+4    Africa       Angola        0
