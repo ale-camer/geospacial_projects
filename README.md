@@ -15,7 +15,7 @@ An interactive, multi-language web application to visualize selected countries o
   - **Map Styles**: Choose between Light (Positron), Standard (OSM), or Dark (Dark Matter).
   - **Color Picker**: Personalize the highlight color for selected countries.
   - **Dark Mode**: Seamless toggle for a premium viewing experience.
-- **Responsive Design**: Built with Tailwind CSS for mobile and desktop compatibility.
+- **Modular Frontend**: Clean separation of structure (HTML), style (CSS), and logic (JS) for high maintainability.
 
 ## 🚀 Tech Stack
 
@@ -69,24 +69,20 @@ An interactive, multi-language web application to visualize selected countries o
 
 ```
 ├── app.py                # Flask entry point
-├── config/
-│   └── constants.py      # Geographic data and mappings
-├── services/
-│   ├── data_service.py   # Excel processing and template generation
-│   └── map_service.py    # Folium map generation logic
+├── config/               # Geographic data and mappings
+├── services/             # Backend logic (Excel & Maps)
 ├── templates/
-│   └── index.html        # Main Spark UI (Tailwind + JS)
-├── static/               # Background images and assets
+│   └── index.html        # Clean HTML structure
+├── static/
+│   ├── css/
+│   │   └── style.css     # Custom styles & Dark Mode
+│   ├── js/
+│   │   ├── main.js       # App logic & event handlers
+│   │   └── translations.js # Dictionary for 15 languages
+│   └── bg1.png           # Assets
 ├── requirements.txt      # Python dependencies
 └── Dockerfile            # Production deployment config
 ```
-
-## 🛠 Usage
-
-1. Select your preferred **language** from the top dropdown.
-2. Select countries manually or **upload an Excel file**.
-3. (Optional) Adjust the **Map Style** and **Color**.
-4. Click **🚀 Launch Map** to generate your interactive visualization.
 
 ---
 Developed by [ale-camer](https://github.com/ale-camer).

@@ -1,0 +1,69 @@
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+    background-image: url('/static/bg1.png');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+}
+
+body.bg-overlay::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(249, 250, 251, 0.85);
+    /* Light mode alpha */
+    z-index: -1;
+    transition: background 0.3s;
+}
+
+body.dark.bg-overlay::before {
+    background: rgba(17, 24, 39, 0.95);
+    /* Dark mode alpha */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
+}
+
+/* Dark Mode */
+body.dark {
+    background-color: #111827;
+    color: #f3f4f6;
+}
+
+body.dark .bg-white {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+body.dark .bg-gray-50 {
+    background-color: #111827;
+}
+
+body.dark .bg-gray-100 {
+    background-color: #374151;
+}
+
+body.dark .border-gray-200 {
+    border-color: #374151;
+}
+
+body.dark input,
+body.dark select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: white;
+}
