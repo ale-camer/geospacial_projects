@@ -37,9 +37,10 @@ function render() {
                     </div>
                     <div class="flex flex-wrap gap-1">
                         ${countries.map(c => {
-                options += `<option value="${c.name}">${c.name}</option>`;
+                const translated = getTranslatedCountryName(c.name, currentLang);
+                options += `<option value="${c.name}">${translated}</option>`;
                 return `<button type="button" id="chip-${c.name}" onclick="toggleCountry('${c.name}')"
-                                 class="px-2 py-0.5 border border-gray-200 rounded-full text-[10px] bg-white transition-all">${c.name}</button>`;
+                                 class="px-2 py-0.5 border border-gray-200 rounded-full text-[10px] bg-white transition-all">${translated}</button>`;
             }).join('')}
                     </div>
                 </div>`;
@@ -92,7 +93,7 @@ function updateChips() {
     } else {
         area.innerHTML = selected.map(o => `
             <div class="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-[11px] font-bold border border-indigo-100 shadow-sm transition-all">
-                ${o.value} <button type="button" onclick="toggleCountry('${o.value}')" class="hover:text-red-500 ml-1 text-sm">×</button>
+                ${o.text} <button type="button" onclick="toggleCountry('${o.value}')" class="hover:text-red-500 ml-1 text-sm">×</button>
             </div>
         `).join('');
 

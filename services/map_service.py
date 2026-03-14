@@ -5,6 +5,13 @@ from services.data_service import get_world_data
 
 logger = logging.getLogger(__name__)
 
+# Maps UI display names → exact name used in world_administrative_boundaries.xlsx
+# If a country isn't rendering on the map, check what name is in the xlsx and add an alias here.
+COUNTRY_NAME_ALIASES = {
+    'Turkey': 'Turkey',
+    'Türkiye': 'Turkey',
+}
+
 def apply_print_injection(m):
     """Injects CSS and HTML for map printing and downloading."""
     map_html = m.get_root().render()
@@ -35,7 +42,18 @@ def generate_map(selected_countries, visited_color, map_style):
         world_df = get_world_data()
         
         if world_df is not None and selected_countries:
-            filtered_df = world_df[world_df['COUNTRY'].isin(selected_countries)]
+            # Normalize names through alias map, fall back to exact name if no alias found
+            xlsx_countries = set(world_df['COUNTRY'].dropna().unique())
+            normalized = []
+            for c in selected_countries:
+                alias = COUNTRY_NAME_ALIASES.get(c)
+                if alias and alias in xlsx_countries:
+                    normalized.append(alias)
+                elif c in xlsx_countries:
+                    normalized.append(c)
+                else:
+                    logger.warning(f"Country not found in boundary data: '{c}'. Available similar: {[x for x in xlsx_countries if c.lower()[:4] in x.lower()]}")
+            filtered_df = world_df[world_df['COUNTRY'].isin(normalized)]
             for _, row in filtered_df.iterrows():
                 try:
                     # Parse geometry

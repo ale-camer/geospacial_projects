@@ -96,7 +96,6 @@ GEO_MAPPING = [
     ('Poland', 'Europe', 'Eastern Europe'), ('Ukraine', 'Europe', 'Eastern Europe'), 
     ('Russia', 'Europe', 'Eastern Europe'), ('Belarus', 'Europe', 'Eastern Europe'), ('Moldova', 'Europe', 'Eastern Europe'),
     ('Czech Republic', 'Europe', 'Central Europe'), ('Slovakia', 'Europe', 'Central Europe'), ('Hungary', 'Europe', 'Central Europe'),
-    ('Turkey', 'Europe', 'Western Asia'),
 
     # Oceania
     ('Australia', 'Oceania', 'Continental'), ('New Zealand', 'Oceania', 'Continental'), 

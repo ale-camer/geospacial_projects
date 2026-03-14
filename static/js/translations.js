@@ -130,3 +130,44 @@ const translations = {
         Africa: "Afrika", Americas: "Amerikalar", Asia: "Asya", Europe: "Avrupa", Oceania: "Okyanusya"
     }
 };
+
+const countryIsoCodes = {
+    'Egypt': 'EG', 'Algeria': 'DZ', 'Morocco': 'MA', 'Tunisia': 'TN', 'Libya': 'LY', 'Sudan': 'SD',
+    'Nigeria': 'NG', 'Ghana': 'GH', 'Senegal': 'SN', 'Ivory Coast': 'CI',
+    'Ethiopia': 'ET', 'Kenya': 'KE', 'Tanzania': 'TZ', 'Uganda': 'UG', 'Somalia': 'SO', 'Djibouti': 'DJ',
+    'South Africa': 'ZA', 'Namibia': 'NA', 'Botswana': 'BW', 'Zimbabwe': 'ZW',
+    'Congo (Kinshasa)': 'CD', 'Congo (Brazzaville)': 'CG', 'Angola': 'AO', 'Gabon': 'GA',
+    'Mozambique': 'MZ', 'Lesotho': 'LS', 'Eswatini': 'SZ', 'Eritrea': 'ER', 'Madagascar': 'MG',
+    'Argentina': 'AR', 'Brazil': 'BR', 'Chile': 'CL', 'Colombia': 'CO', 'Peru': 'PE', 'Uruguay': 'UY', 'Paraguay': 'PY', 'Bolivia': 'BO',
+    'Ecuador': 'EC', 'Venezuela': 'VE', 'Suriname': 'SR', 'Guyana': 'GY', 'French Guiana': 'GF', 'Falkland Islands': 'FK',
+    'South Georgia and the South Sandwich Islands': 'GS',
+    'Panama': 'PA', 'Costa Rica': 'CR', 'Nicaragua': 'NI', 'Honduras': 'HN', 'El Salvador': 'SV', 'Guatemala': 'GT', 'Belize': 'BZ',
+    'Cuba': 'CU', 'Jamaica': 'JM', 'Haiti': 'HT', 'Dominican Republic': 'DO', 'Puerto Rico': 'PR', 'Bahamas': 'BS', 'Barbados': 'BB', 'Trinidad and Tobago': 'TT',
+    'Saint Lucia': 'LC', 'Grenada': 'GD', 'Saint Vincent and the Grenadines': 'VC', 'Antigua and Barbuda': 'AG', 'Saint Kitts and Nevis': 'KN', 'Dominica': 'DM',
+    'Aruba': 'AW', 'Cayman Islands': 'KY', 'British Virgin Islands': 'VG', 'United States Virgin Islands': 'VI', 'Anguilla': 'AI', 'Montserrat': 'MS', 'Curaçao': 'CW', 'Sint Maarten': 'SX',
+    'United States': 'US', 'Canada': 'CA', 'Mexico': 'MX', 'Greenland': 'GL', 'Bermuda': 'BM', 'Saint Pierre and Miquelon': 'PM',
+    'Antarctica': 'AQ',
+    'China': 'CN', 'Japan': 'JP', 'South Korea': 'KR', 'North Korea': 'KP', 'Taiwan': 'TW', 'Mongolia': 'MN',
+    'India': 'IN', 'Pakistan': 'PK', 'Bangladesh': 'BD', 'Sri Lanka': 'LK', 'Nepal': 'NP', 'Bhutan': 'BT', 'Maldives': 'MV', 'Afghanistan': 'AF',
+    'Indonesia': 'ID', 'Thailand': 'TH', 'Vietnam': 'VN', 'Malaysia': 'MY', 'Philippines': 'PH', 'Singapore': 'SG', 'Myanmar': 'MM', 'Cambodia': 'KH', 'Laos': 'LA', 'Brunei': 'BN', 'Timor-Leste': 'TL',
+    'Kazakhstan': 'KZ', 'Uzbekistan': 'UZ', 'Turkmenistan': 'TM', 'Kyrgyzstan': 'KG', 'Tajikistan': 'TJ',
+    'Saudi Arabia': 'SA', 'United Arab Emirates': 'AE', 'Israel': 'IL', 'Turkey': 'TR', 'Iran': 'IR', 'Iraq': 'IQ', 'Jordan': 'JO', 'Lebanon': 'LB', 'Syria': 'SY', 'Yemen': 'YE', 'Oman': 'OM', 'Qatar': 'QA', 'Kuwait': 'KW', 'Bahrain': 'BH', 'Armenia': 'AM', 'Azerbaijan': 'AZ', 'Georgia': 'GE',
+    'United Kingdom': 'GB', 'Ireland': 'IE', 'Norway': 'NO', 'Sweden': 'SE', 'Denmark': 'DK', 'Finland': 'FI', 'Iceland': 'IS', 'Estonia': 'EE', 'Latvia': 'LV', 'Lithuania': 'LT',
+    'France': 'FR', 'Germany': 'DE', 'Netherlands': 'NL', 'Belgium': 'BE', 'Switzerland': 'CH', 'Austria': 'AT', 'Liechtenstein': 'LI', 'Monaco': 'MC',
+    'Spain': 'ES', 'Italy': 'IT', 'Portugal': 'PT', 'Greece': 'GR', 'Malta': 'MT', 'Cyprus': 'CY', 'Andorra': 'AD', 'Vatican City': 'VA', 'San Marino': 'SM',
+    'Croatia': 'HR', 'Serbia': 'RS', 'Bosnia and Herzegovina': 'BA', 'Montenegro': 'ME', 'Albania': 'AL', 'North Macedonia': 'MK', 'Bulgaria': 'BG', 'Slovenia': 'SI', 'Romania': 'RO',
+    'Poland': 'PL', 'Ukraine': 'UA', 'Russia': 'RU', 'Belarus': 'BY', 'Moldova': 'MD', 'Czech Republic': 'CZ', 'Slovakia': 'SK', 'Hungary': 'HU',
+    'Australia': 'AU', 'New Zealand': 'NZ', 'Fiji': 'FJ', 'Papua New Guinea': 'PG', 'Solomon Islands': 'SB', 'Vanuatu': 'VU', 'Samoa': 'WS', 'Kiribati': 'KI', 'Tonga': 'TO', 'Micronesia': 'FM', 'Palau': 'PW', 'Marshall Islands': 'MH', 'Nauru': 'NR', 'Tuvalu': 'TV'
+};
+
+function getTranslatedCountryName(englishName, lang) {
+    if (lang === 'en') return englishName;
+    const isoCode = countryIsoCodes[englishName];
+    if (!isoCode) return englishName;
+    try {
+        const displayNames = new Intl.DisplayNames([lang], { type: 'region' });
+        return displayNames.of(isoCode) || englishName;
+    } catch (e) {
+        return englishName;
+    }
+}
