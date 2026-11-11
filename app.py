@@ -7,8 +7,17 @@ from services.map_service import generate_map
 
 # Application Setup
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB upload limit to protect server memory
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+ALLOWED_EXTENSIONS = ('.xlsx', '.xls')
+
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    """Returns a clean JSON error when an uploaded file exceeds MAX_CONTENT_LENGTH."""
+    return jsonify({"error": "File exceeds maximum allowed size (5 MB)"}), 413
 
 @app.route('/')
 def index():
@@ -29,15 +38,30 @@ def get_countries():
             
     return jsonify(data)
 
-@app.route('/api/download_template')
+@app.route('/api/download_template', methods=['GET', 'POST'])
 def download_template():
-    """API: Generates and downloads an Excel template from memory (BytesIO)."""
+    """
+    API: Generates and downloads an Excel file from memory (BytesIO).
+    If selected_countries are passed (via POST JSON/form or GET query), exports
+    them marked with VISITED=1; otherwise downloads a blank template (VISITED=0).
+    """
     try:
-        buffer = generate_template_buffer()
+        selected = []
+        if request.method == 'POST':
+            if request.is_json:
+                payload = request.get_json(silent=True) or {}
+                selected = payload.get('selected_countries', [])
+            else:
+                selected = request.form.getlist('selected_countries')
+        else:
+            selected = request.args.getlist('selected_countries')
+
+        buffer = generate_template_buffer(selected)
+        filename = "visited_countries.xlsx" if selected else "template_countries.xlsx"
         return send_file(
             buffer,
             as_attachment=True,
-            download_name="template_countries.xlsx",
+            download_name=filename,
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     except Exception as e:
@@ -53,6 +77,8 @@ def upload_file():
         file = request.files['file']
         if file.filename == '':
             return jsonify({"error": "Empty filename"}), 400
+        if not file.filename.lower().endswith(ALLOWED_EXTENSIONS):
+            return jsonify({"error": "Invalid file type. Only .xlsx or .xls files are allowed."}), 400
         
         visited = process_upload(file)
         return jsonify(visited)

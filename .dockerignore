@@ -1,0 +1,10 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+visited_countries.xlsx
+visited_countries_analysis.csv

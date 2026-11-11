@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="oceanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="55%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="landGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <!-- Globe circle -->
+  <circle cx="32" cy="32" r="29" fill="url(#oceanGrad)" stroke="#e0e7ff" stroke-width="2.5"/>
+  <!-- Subtle latitude/longitude grid -->
+  <ellipse cx="32" cy="32" rx="14" ry="29" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/>
+  <line x1="3" y1="32" x2="61" y2="32" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/>
+  <path d="M8 20 Q32 24 56 20" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.1"/>
+  <path d="M8 44 Q32 40 56 44" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.1"/>
+  <!-- Stylized Americas -->
+  <path d="M14 14 C18 13, 23 16, 22 21 C21 25, 17 26, 19 30 C21 33, 25 35, 24 42 C23 48, 19 52, 17 50 C15 47, 17 41, 15 36 C13 31, 10 26, 11 20 C11 17, 12 15, 14 14 Z" fill="url(#landGrad)"/>
+  <!-- Stylized Eurasia & Africa -->
+  <path d="M31 13 C38 11, 48 14, 52 21 C54 25, 50 29, 46 29 C43 29, 41 32, 42 37 C43 43, 39 49, 35 48 C31 47, 31 41, 30 36 C28 32, 27 28, 29 24 C30 20, 28 15, 31 13 Z" fill="url(#landGrad)"/>
+  <!-- Location pin accent -->
+  <circle cx="44" cy="21" r="4.5" fill="#f43f5e" stroke="#ffffff" stroke-width="1.8"/>
+</svg>

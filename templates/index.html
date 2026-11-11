@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>World Map</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -17,7 +18,7 @@
             class="bg-white/70 backdrop-blur-md sticky top-0 z-50 shadow-sm py-4 border-b border-white/20 transition-all">
             <div class="container mx-auto px-6 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <span class="text-3xl">🌎</span>
+                    <img src="{{ url_for('static', filename='favicon.svg') }}" alt="World Map Icon" class="w-9 h-9 drop-shadow-sm">
                     <div>
                         <h2 id="card-title" class="text-xl font-bold text-gray-800">World Map</h2>
                         <p id="card-desc" class="text-gray-500 text-xs">Visualize selected countries across the globe.
@@ -95,14 +96,35 @@
                 </div>
 
                 <div class="p-8">
-                    <form action="/view_map" method="post" target="_blank">
+                    <form id="map-form" action="/view_map" method="post" target="map-preview-frame" onsubmit="return openMapModal(event)">
                         <div class="space-y-6">
-                            <!-- Controls -->
-                            <!-- Actions Toolbar -->
-                            <div class="space-y-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                            <!-- 3-Step Quick Onboarding Bar -->
+                            <div id="quick-steps" class="flex flex-wrap items-center justify-center gap-2 sm:gap-6 px-4 py-2.5 bg-indigo-50/40 border border-indigo-100/80 rounded-xl text-xs font-medium text-gray-600">
+                                <span id="step-1" class="flex items-center gap-1.5"><strong class="text-indigo-600">①</strong> Select countries (click or Load Excel)</span>
+                                <span class="hidden sm:inline text-gray-300">→</span>
+                                <span id="step-2" class="flex items-center gap-1.5"><strong class="text-indigo-600">②</strong> Pick map style & color</span>
+                                <span class="hidden sm:inline text-gray-300">→</span>
+                                <span id="step-3" class="flex items-center gap-1.5"><strong class="text-indigo-600">③</strong> Launch or print your map</span>
+                            </div>
+
+                            <!-- Search & Selected Chips (Primary Action) -->
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <input type="text" id="search" oninput="filterCountries()" placeholder="Search country..."
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-2xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all shadow-sm">
+                                    <span class="absolute left-4 top-3.5">🔍</span>
+                                </div>
+                                <div id="active-chips"
+                                    class="flex flex-wrap gap-2 min-h-[50px] p-3 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                    <span class="text-xs text-gray-400 w-full text-center py-2" id="no-selection">No countries selected yet — search above, expand a continent below, or load an Excel file.</span>
+                                </div>
+                            </div>
+
+                            <!-- Secondary Actions Toolbar (Data & View) -->
+                            <div class="space-y-3 bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <!-- Data Actions -->
-                                    <div class="space-y-2">
+                                    <div class="space-y-1.5">
                                         <label id="label-data"
                                             class="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center block">Data
                                             Management</label>
@@ -112,7 +134,7 @@
                                                 id="btn-download" title="Download Excel template with all countries">
                                                 📥 Download Template
                                             </button>
-                                            <input type="file" id="excel-upload" class="hidden"
+                                            <input type="file" id="excel-upload" accept=".xlsx,.xls" class="hidden"
                                                 onchange="handleFileUpload(this)">
                                             <button type="button"
                                                 onclick="document.getElementById('excel-upload').click()"
@@ -123,7 +145,7 @@
                                         </div>
                                     </div>
                                     <!-- View/Selection Actions -->
-                                    <div class="space-y-2">
+                                    <div class="space-y-1.5">
                                         <label id="label-view"
                                             class="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center block">Selection
                                             & View</label>
@@ -143,20 +165,6 @@
                                 </div>
                             </div>
 
-                            <!-- Search & Selected Chips -->
-                            <div class="space-y-3">
-                                <div class="relative">
-                                    <input type="text" id="search" oninput="filterCountries()" placeholder="Search..."
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-2xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all shadow-sm">
-                                    <span class="absolute left-4 top-3.5">🔍</span>
-                                </div>
-                                <div id="active-chips"
-                                    class="flex flex-wrap gap-2 min-h-[50px] p-3 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                    <span class="text-xs text-gray-400 w-full text-center py-2" id="no-selection">No
-                                        selection</span>
-                                </div>
-                            </div>
-
                             <!-- Accordion -->
                             <div id="accordion" class="max-h-[32rem] overflow-y-auto pr-2 custom-scrollbar space-y-3">
                                 <!-- Dynamic Content -->
@@ -167,17 +175,17 @@
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block"
                                         id="label-style">Style</label>
-                                    <select name="map_style"
+                                    <select name="map_style" id="map-style-select" onchange="savePreferences()"
                                         class="w-full text-sm border-gray-200 rounded-lg p-2 bg-gray-50 outline-none">
-                                        <option value="CartoDB positron">Light</option>
-                                        <option value="OpenStreetMap">Standard</option>
-                                        <option value="CartoDB dark_matter">Dark</option>
+                                        <option value="CartoDB positron" id="opt-style-light">Light</option>
+                                        <option value="OpenStreetMap" id="opt-style-standard">Standard</option>
+                                        <option value="CartoDB dark_matter" id="opt-style-dark">Dark</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block"
                                         id="label-color">Color</label>
-                                    <input type="color" name="visited_color" value="#3498db"
+                                    <input type="color" name="visited_color" id="visited-color-input" value="#3498db" onchange="savePreferences()"
                                         class="w-full h-9 rounded border border-gray-200 cursor-pointer">
                                 </div>
                             </div>
@@ -194,6 +202,37 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Integrated Map Preview Modal -->
+    <div id="map-modal" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-6xl h-[88vh] flex flex-col overflow-hidden">
+            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2.5">
+                    <img src="{{ url_for('static', filename='favicon.svg') }}" alt="Map" class="w-6 h-6">
+                    <span id="modal-map-title" class="font-bold text-sm text-gray-800">World Map</span>
+                    <span id="modal-map-stats" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">0/180 (0%)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="btn-modal-print" onclick="printPreviewMap()"
+                        class="px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold transition-colors shadow-sm"
+                        title="Print or save map as PDF">
+                        🖨️ Print / PDF
+                    </button>
+                    <button type="button" id="btn-modal-newtab" onclick="openMapInNewTab()"
+                        class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold transition-colors shadow-sm"
+                        title="Open map in a separate browser tab">
+                        ↗️ New Tab
+                    </button>
+                    <button type="button" onclick="closeMapModal()"
+                        class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-bold transition-colors"
+                        title="Close preview (Esc)">
+                        ✕
+                    </button>
+                </div>
+            </div>
+            <iframe id="map-preview-frame" name="map-preview-frame" class="w-full flex-grow border-0 bg-slate-100"></iframe>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/translations.js') }}"></script>

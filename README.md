@@ -4,18 +4,23 @@ An interactive, multi-language web application to visualize selected countries o
 
 ## ✨ Features
 
-- **Interactive Selection**: Choose countries via a modern accordion interface or search by name.
-- **Multilingual Support**: Fully translated into **15 languages**:
-  - Arabic (ar), Chinese (zh), Danish (da), Dutch (nl), English (en), French (fr), German (de), Hindi (hi), Italian (it), Japanese (ja), Korean (ko), Portuguese (pt), Russian (ru), Spanish (es), Turkish (tr).
-- **Data Management**:
-  - 📥 **Download Template**: Get an Excel file with all available countries.
-  - 📄 **Load Excel**: Upload your own visited countries list to auto-populate the map.
-- **Real-time Statistics**: View the percentage of "visited" countries by Continent and Region.
-- **Customization**:
-  - **Map Styles**: Choose between Light (Positron), Standard (OSM), or Dark (Dark Matter).
-  - **Color Picker**: Personalize the highlight color for selected countries.
-  - **Dark Mode**: Seamless toggle for a premium viewing experience.
-- **Modular Frontend**: Clean separation of structure (HTML), style (CSS), and logic (JS) for high maintainability.
+- **Interactive Selection**:
+  - Choose countries individually via a clean accordion interface or instant search filter.
+  - Bulk `ALL` / `NONE` selection toggles at both **Continent** and **Sub-Region** levels.
+  - Alphabetical ordering localized dynamically to the active language across all 3 levels (Continents, Sub-Regions, and Countries).
+- **Multilingual Support (15 Languages + RTL)**:
+  - Arabic (`ar`, with automatic `RTL` layout), Chinese (`zh`), Danish (`da`), Dutch (`nl`), English (`en`), French (`fr`), German (`de`), Hindi (`hi`), Italian (`it`), Japanese (`ja`), Korean (`ko`), Portuguese (`pt`), Russian (`ru`), Spanish (`es`), Turkish (`tr`).
+- **Data Management & Persistence**:
+  - 💾 **Automatic Browser Persistence**: Remembers selected countries, language, theme, map style, and highlight color across page reloads via `localStorage`.
+  - 📥 **Smart Excel Export / Template**: Downloads a blank template when no countries are selected, or exports your current selection (`VISITED = 1`) with a live counter (`📥 Download Template (N)`).
+  - 📄 **Flexible Excel Import**: Recognizes common country aliases, case/whitespace variations, and multiple truthy indicators (`1`, `true`, `yes`, `si`, `x`), displaying toast notifications for loaded and unmatched entries.
+- **Real-time Exact Statistics**:
+  - Displays both exact counts and percentages (`visited/total (%)`) globally, per continent, and per sub-region.
+- **Integrated & Resilient Map Visualization**:
+  - **In-App Preview Modal**: Inspect, print/save to PDF (`🖨️`), or open in a standalone tab (`↗️`) without leaving the page.
+  - **API-Key-Free Resilient Basemaps**: Light, Standard, and Dark styles backed by open Esri Canvas & OpenStreetMap layers with automatic client-side fallback and crisp vector borders for both visited and unvisited countries.
+  - **High-Contrast Dark Mode**: Complete dark theme across header, statistics, action buttons, chips, and map modal.
+- **Exhaustive Technical Documentation**: See [`CHANGELOG.md`](./CHANGELOG.md) for the complete engineering log of all architectural and UX improvements.
 
 ## 🚀 Tech Stack
 
