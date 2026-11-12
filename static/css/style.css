@@ -297,3 +297,53 @@ body.dark #quick-steps {
     border-color: rgba(99, 102, 241, 0.35) !important;
     color: #e2e8f0 !important;
 }
+
+/* ==========================================================================
+   Smart Auto-Shrink & Auto-Hide Header on Scroll + Mobile Polish
+   ========================================================================== */
+
+#app-header {
+    will-change: transform, padding;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                padding 0.24s ease,
+                background-color 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+#app-header.header-compact {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+    box-shadow: 0 6px 20px -6px rgba(15, 23, 42, 0.14);
+}
+
+#app-header.header-compact #header-logo {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+}
+
+#app-header.header-compact #card-title {
+    font-size: 0.92rem !important;
+    line-height: 1.2 !important;
+}
+
+#app-header.header-compact #card-desc {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+#app-header.header-hidden {
+    transform: translateY(-102%);
+    box-shadow: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+

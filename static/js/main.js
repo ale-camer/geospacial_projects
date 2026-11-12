@@ -172,7 +172,7 @@ function render() {
                     : 'bg-white border-gray-200';
                 // Pass country key via data-country instead of inline JS string literal to prevent syntax errors on apostrophes
                 return `<button type="button" id="chip-${safeName}" data-country="${safeName}" onclick="toggleCountry(this.dataset.country)"
-                                 class="px-2 py-0.5 border rounded-full text-[10px] ${stateClasses} transition-all">${safeTranslated}</button>`;
+                                 class="px-2.5 py-1 sm:px-2 sm:py-0.5 border rounded-full text-[11px] sm:text-[10px] ${stateClasses} transition-all">${safeTranslated}</button>`;
             }).join('')}
                     </div>
                 </div>`;
@@ -657,5 +657,48 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// --- Smart Auto-Shrink & Auto-Hide Header on Scroll (Window + Accordion) ---
+(function setupHeaderScrollBehavior() {
+    let lastWinScrollY = window.scrollY || 0;
+    let lastAccScrollY = 0;
+
+    function applyScrollState(currentY, deltaY) {
+        const header = document.getElementById('app-header');
+        if (!header) return;
+
+        if (currentY <= 18) {
+            header.classList.remove('header-compact', 'header-hidden');
+            return;
+        }
+
+        header.classList.add('header-compact');
+
+        if (deltaY > 6 && currentY > 72) {
+            header.classList.add('header-hidden');
+        } else if (deltaY < -5) {
+            header.classList.remove('header-hidden');
+        }
+    }
+
+    window.addEventListener('scroll', () => {
+        const currentY = window.scrollY || document.documentElement.scrollTop || 0;
+        const deltaY = currentY - lastWinScrollY;
+        lastWinScrollY = currentY;
+        applyScrollState(currentY, deltaY);
+    }, { passive: true });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const acc = document.getElementById('accordion');
+        if (!acc) return;
+        acc.addEventListener('scroll', () => {
+            const currentY = acc.scrollTop || 0;
+            const deltaY = currentY - lastAccScrollY;
+            lastAccScrollY = currentY;
+            const effectiveY = Math.max(window.scrollY || 0, currentY);
+            applyScrollState(effectiveY, deltaY);
+        }, { passive: true });
+    });
+})();
 
 init();
